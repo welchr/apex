@@ -24,7 +24,7 @@ docker build --pull -t apex:${APEX_VERSION} \
   --build-arg GIT_SHA=${GIT_SHA} \
   --build-arg APEX_VERSION=${APEX_VERSION} \
   --progress plain \
-  --target compile \
+  --target test \
   "$@" .
 
 # Tag final apex image as latest.
