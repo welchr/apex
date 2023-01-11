@@ -23,7 +23,6 @@ find_library(LIB_Z z HINT ${CGET_PREFIX}/lib)
 find_library(LIB_HTS hts HINT ${CGET_PREFIX}/lib)
 find_library(LIB_RMATH Rmath HINT ${CGET_PREFIX}/lib)
 
-find_package(BZip2)
 find_package(OpenMP)
 find_package(Boost REQUIRED)
 
@@ -88,8 +87,8 @@ target_compile_options(apex PUBLIC "$<$<NOT:$<PLATFORM_ID:Darwin>>:-static>" "$<
 
 # -static not supported on MacOS, can't statically link to C runtime
 target_link_options(apex PUBLIC "$<$<NOT:$<PLATFORM_ID:Darwin>>:-static>" "$<$<CONFIG:RELEASE>:-flto>" -Wno-unused-function)
-target_include_directories(apex PUBLIC ${CGET_PREFIX}/include src src/BRENT ${BZIP2_INCLUDE_DIRS})
-target_link_libraries(apex PUBLIC ${LIB_ZSTD} ${LIB_LZMA} ${LIB_Z} ${LIB_HTS} ${LIB_RMATH} ${Boost_LIBRARIES} ${BZIP2_LIBRARIES})
+target_include_directories(apex PUBLIC ${CGET_PREFIX}/include src src/BRENT)
+target_link_libraries(apex PUBLIC ${LIB_ZSTD} ${LIB_LZMA} ${LIB_Z} ${LIB_HTS} ${LIB_RMATH} ${Boost_LIBRARIES})
 
 if(OpenMP_CXX_FOUND)
   target_compile_options(apex PUBLIC "${OpenMP_CXX_FLAGS}")

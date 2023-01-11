@@ -14,8 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   cmake \
   python3-pip \
   zlib1g-dev \
-  liblzma-dev \
-  libbz2-dev \
   locales \
   git \
   pkg-config \
