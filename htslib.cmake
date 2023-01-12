@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
 project(htslib VERSION 1.8)
 
-execute_process(COMMAND ./configure --disable-libcurl --prefix=${CMAKE_INSTALL_PREFIX} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+execute_process(COMMAND ./configure --disable-libcurl --disable-bz2 --disable-lzma --prefix=${CMAKE_INSTALL_PREFIX} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_custom_command(
         OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}hts${CMAKE_SHARED_LIBRARY_SUFFIX}" "${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}hts${CMAKE_STATIC_LIBRARY_SUFFIX}"
         COMMAND $(MAKE)
