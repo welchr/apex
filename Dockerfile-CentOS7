@@ -1,0 +1,78 @@
+FROM centos:centos7 as base
+
+# Install required packages for apex to install.
+RUN yum update -y && \
+  yum install -y centos-release-scl && \
+  yum install -y \
+    devtoolset-9 \
+    zlib-devel \
+    python-devel \
+    glibc-static \
+    python3 \
+    python3-devel && \
+  yum -y clean all && \
+  rm -rf /var/cache
+
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+RUN echo "source /opt/rh/devtoolset-9/enable" >> /etc/bashrc
+SHELL ["/bin/bash", "--login", "-c"]
+
+RUN curl -OJL https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-linux-x86_64.sh && \
+  bash cmake-3.25.1-linux-x86_64.sh --skip-license --prefix=/usr/local
+
+# Install python dependencies
+RUN pip3 install --upgrade pip && \
+    pip3 install cget
+
+# Create a group and user to execute as, then drop root
+RUN adduser --user-group --create-home --shell /bin/bash apex
+
+WORKDIR /home/apex
+USER apex
+
+# Install cpp dependencies
+COPY --chown=apex:apex requirements.txt /home/apex/requirements.txt
+COPY --chown=apex:apex *.cmake /home/apex/
+ARG CMAKE_BUILD_PARALLEL_LEVEL
+ARG MAKEFLAGS
+RUN cget install -f requirements.txt
+
+# Next stage: compile
+FROM base as compile
+
+# Copy source
+COPY --chown=apex:apex CMakeLists.txt /home/apex/CMakeLists.txt
+COPY --chown=apex:apex ./src /home/apex/src
+COPY --chown=apex:apex ./tests /home/apex/tests
+
+# Run compile
+ENV CGET_PREFIX="/home/apex/cget"
+ENV INSTALL_PREFIX="/home/apex/cget"
+RUN \
+  mkdir build \
+  && cd build \
+  && cmake .. \
+    -DCMAKE_TOOLCHAIN_FILE=${CGET_PREFIX}/cget/cget.cmake \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_PREFIX} \
+    -DCMAKE_BUILD_TYPE=Release
+RUN cd build && cmake --build . --target apex
+RUN cd build && cmake --build . --target apex-bin
+RUN cd build && cmake --build . --target tests
+
+# Run test cases
+FROM compile as test
+RUN cd tests && ../build/tests/tests
+
+# Frequently changing metadata here to avoid cache misses
+ARG BUILD_DATE
+ARG GIT_SHA
+ARG APEX_VERSION
+
+LABEL org.label-schema.version=$apex_VERSION \
+      org.label-schema.vcs-ref=$GIT_SHA \
+      org.label-schema.build-date=$BUILD_DATE
+
+# Set the default stage to be the base files + compiled binaries + test cases.
+FROM test
