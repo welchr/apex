@@ -51,13 +51,20 @@ CMake can also be used to compile the source. Required dependencies can be obtai
 
 ```
 # Install dependencies with cget.
-cget install .
+cget install -f requirements.txt
 
 # Compile with CMake.
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cget/cget/cget.cmake
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cget/cget/cget.cmake -DCMAKE_INSTALL_PREFIX=/usr/local
 make
+
+# At this point, apex executable will be located in the build directory
+
+# Optionally, to install in prefix directory, use command below
+# apex executable will be installed as: $CMAKE_INSTALL_PREFIX/bin/apex
+# Prefix path can be changed in cmake command above
+make install
 ```
 
 Change to `-DCMAKE_BUILD_TYPE=Release` for a release build with all optimizations enabled.
