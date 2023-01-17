@@ -17,6 +17,7 @@ if(NOT APPLE)
   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
   set(BUILD_SHARED_LIBS OFF)
   set(CMAKE_EXE_LINKER_FLAGS "-static")
+  set(CMAKE_SKIP_RPATH TRUE)
 endif()
 
 if(CGET_PREFIX)
@@ -123,3 +124,5 @@ set_target_properties(apex-bin PROPERTIES OUTPUT_NAME apex)
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
+
+install(TARGETS apex-bin COMPONENT cli RUNTIME DESTINATION bin OPTIONAL)

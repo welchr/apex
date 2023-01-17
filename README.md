@@ -40,36 +40,34 @@ To install APEX from source or download precompiled binaries, [**see installatio
  
 ## Installation
 APEX is primarily written in C++. To compile APEX from source, run:
-```
-git clone https://github.com/corbinq/apex.git
-cd apex 
-bash get_dependencies.sh
-make
-```
 
 CMake can also be used to compile the source. Required dependencies can be obtained and compiled using [cget](https://cget.readthedocs.io/en/latest/).
 
-```
+```bash
+# Clone repository
+git clone https://github.com/lin-lab/apex.git
+cd apex
+
 # Install dependencies with cget.
-cget install .
+cget install -f requirements.txt
 
 # Compile with CMake.
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cget/cget/cget.cmake
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=../cget/cget/cget.cmake -DCMAKE_INSTALL_PREFIX=/usr/local
 make
+
+# At this point, apex executable will be located in the build directory
+
+# Optionally, to install in prefix directory, use command below
+# apex executable will be installed as: $CMAKE_INSTALL_PREFIX/bin/apex
+# Prefix path can be changed in cmake command above
+make install
 ```
 
 Change to `-DCMAKE_BUILD_TYPE=Release` for a release build with all optimizations enabled.
 
-Precompiled binaries are also available for 64-bit Linux systems as follows:
-```
-git clone https://github.com/corbinq/apex.git
-cd apex/bin
-gunzip apex_Linux_x86_64.gz
-mv apex_Linux_x86_64 apex && chmod +x apex
-./apex --help
-```
+Precompiled binaries are also available under the [Releases](https://github.com/lin-lab/apex/releases) section on Github.
 
 ## Software dependencies
 
