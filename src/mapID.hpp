@@ -32,6 +32,7 @@ common tasks across file types.
 
 
 std::vector<std::string> intersect_ids(std::vector<std::string>, std::vector<std::string>);
+std::vector<std::string> intersect_stable(std::vector<std::string>, std::vector<std::string>);
 
 class id_map
 {

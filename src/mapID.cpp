@@ -33,6 +33,17 @@ std::vector<std::string> intersect_ids(std::vector<std::string> a, std::vector<s
 	return out;
 }
 
+std::vector<std::string> intersect_stable(std::vector<std::string> a, std::vector<std::string> b) {
+  std::vector<std::string> out;
+  std::unordered_set<std::string> bs(b.begin(), b.end());
+  for (auto& s : a) {
+    if (has_element(bs, s)) {
+      out.emplace_back(s);
+    }
+  }
+  return out;
+}
+
 int id_map::n()
 {	
 	return keep.size();

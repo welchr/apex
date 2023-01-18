@@ -1562,36 +1562,27 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 	std::cerr << "Found " << e_data.ids.file.size() << " samples in expression bed file ... \n";
 	
 	std::vector<std::string> intersected_samples;
-	if( c_path == "" && g_path == "" ){
-		intersected_samples = e_data.ids.file;
-	}else if( c_path == "" ){
-		intersected_samples = intersect_ids(g_data.ids.file, e_data.ids.file);
-	}else{
-		intersected_samples = intersect_ids(intersect_ids(g_data.ids.file, c_data.cols.file), e_data.ids.file);
-	}
-	
-	if( g_path != "" ){
-		
-		// order of intersected samples should match genotype file
-		
-		std::vector<std::string> intersected_samples_gto = g_data.ids.file;
-		for(int i = 0; i < intersected_samples_gto.size(); ){
-			if( has_element(intersected_samples, intersected_samples_gto[i]) ){
-				i++;
-			}else{
-				intersected_samples_gto.erase(intersected_samples_gto.begin() + i);
-			}
-		}
-		
-		intersected_samples = intersected_samples_gto;
-		
-		std::cerr << "Found " << intersected_samples.size() << " samples in common across all three files.\n\n";
 
+  // If genotypes were specified, they need to be the first set of samples to be intersected so that the intersected
+  // samples are in same order as genotype file (?)
+  if (g_path != "") {
+    intersected_samples = intersect_stable(g_data.ids.file, e_data.ids.file);
+  } else {
+    // There were no genotypes, so we can just start intersected samples off as the expression data samples
+    intersected_samples = e_data.ids.file;
+  }
+
+  if (c_path != "") {
+    intersected_samples = intersect_stable(intersected_samples, c_data.cols.file);
+  }
+
+	if( g_path != "" ){
 		// set to the intersection across all three files
 		g_data.ids.setKeepIDs(intersected_samples);
 		g_data.n_samples = intersected_samples.size();
-		
 	}
+
+  std::cerr << "Found " << intersected_samples.size() << " samples in common across all files.\n\n";
 	
 	e_data.ids.setKeepIDs(intersected_samples);
 	if( c_path != "" ) c_data.cols.setKeepIDs(intersected_samples);
