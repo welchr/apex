@@ -196,14 +196,31 @@ sumStats$methods(
 
 		if( adjusted ){
 			GtU <- as.matrix(vx[ss_idx,-c(1:10)])
+
+			# The C matrix loaded from the vcov bin file has covariance set to 0 for variants that are greater
+			# than the 2 * (--window X) bp apart. The GtU matrix does not, and has values for every single variant,
+			# regardless of whether the covariance is actually known between them. Subtracting off this tcrossprod(GtU) can then
+			# result in incorrect covariance values where they should otherwise still be 0.
+			H <- tcrossprod(GtU)
+			if (!all(dim(C) == dim(H))) {
+				stop("Dimensions of matrices C and H do not match")
+			}
+			H[C == 0] <- 0
+
 			V <- flipMatrix(
-				C - tcrossprod(GtU), 
+				C - H,
 				which(dsnp$flipped==1), which(dsnp$flipped==0)
 			)
 			rm(C, GtU)
 		}else{
+			H = tcrossprod(2 * vx$mac[ss_idx])
+			if (!all(dim(C) == dim(H))) {
+				stop("Dimensions of matrices C and H do not match")
+			}
+			H[C == 0] <- 0
+
 			V <- flipMatrix(
-				C - tcrossprod(2 * vx$mac[ss_idx]), 
+				C - H,
 				which(dsnp$flipped==1), which(dsnp$flipped==0)
 			)
 			rm(C)
