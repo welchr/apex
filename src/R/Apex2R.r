@@ -68,14 +68,19 @@ sumStats$methods(
 			if(!file.exists(x)) stop(paste0("Required input file '", x, "' does not exist.\n"))
 		}
 
-		ds <- lapply(readLines(ss_f), function(x) scan(text = x, quiet=TRUE))
+		ds <- lapply(readLines(ss_f), function(x) scan(text = x, quiet=TRUE, what="character"))
 		
 		dreg_t <- as.data.frame(do.call(rbind,lapply(ds, function(x) head(x, 4))))
 		colnames(dreg_t) <- c("chr", "start", "end", "sv")
+		for (col in c("start", "end", "sv")) {
+			dreg_t[,col] = as.numeric(dreg_t[,col])
+		}
 
 		.self$initFields(
 			prefix = file_prefix,
-			dscore = sapply(ds, function(x) x[-c(1:4)]),
+			dscore = sapply(ds, function(x) {
+				as.numeric(x[-c(1:4)])
+			}),
 			dreg = dreg_t,
 			ds_gene = data.table::fread(sg_f),
 			vb = xzReader$new(vb_f),
