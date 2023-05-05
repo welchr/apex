@@ -1,6 +1,13 @@
 loop_gene_tryCatch <- function (x) {
   print(x)
-  return(tryCatch(loop_gene(gene=names(res_list)[x],c_list=res_list[[x]],heter=T), error=function(e) {data.frame("gene"=names(res_list)[x])}))
+  return(
+    tryCatch(
+      loop_gene(gene=names(res_list)[x],c_list=res_list[[x]],heter=T),
+      error=function(e) {
+        data.frame("gene"=names(res_list)[x])
+      }
+    )
+  )
 }
 
 loop_gene=function(gene,c_list,heter=T){
@@ -24,10 +31,11 @@ loop_gene=function(gene,c_list,heter=T){
       meta_V_kk = meta_V[k_idx,k_idx]
 
       RSQ = as.numeric((t(meta_V_ck) %*% solve(meta_V_cc) %*% meta_V_ck)/meta_V_kk)
+      ok = !any(is.na(meta_V_ck))
 
-      if(RSQ <= 0.8 & heter) {
+      if(ok & (RSQ <= 0.8) & heter) {
         k_out=heter_cond_p(gene_sf_het,c_idx,k_idx)
-      } else if (RSQ <= 0.8 & !heter){
+      } else if (ok & (RSQ <= 0.8) & !heter){
         k_out=cond_p(meta_V,meta_U,meta_S,meta_n,meta_m,c_idx,k_idx)
       } else {
         U_star = 0

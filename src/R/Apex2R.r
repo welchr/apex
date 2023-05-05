@@ -3,6 +3,9 @@ require(data.table)
 require(Matrix)
 require(Rcpp)
 
+options(warn=1)
+ASSUME_MISSING_COV_ZERO = TRUE
+
 Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 Rcpp::sourceCpp('xzReader.cpp') 
 
@@ -78,7 +81,7 @@ sumStats$methods(
 
 		.self$initFields(
 			prefix = file_prefix,
-			dscore = sapply(ds, function(x) {
+			dscore = lapply(ds, function(x) {
 				as.numeric(x[-c(1:4)])
 			}),
 			dreg = dreg_t,
@@ -194,18 +197,29 @@ sumStats$methods(
 			x = vb$getData(x_s, x_e)
 		)
 
+		if (any(is.na(C))) {
+			warning("Covariance matrix contains missing values; to avoid this, increase --window size with apex store")
+		}
+
 		if( adjusted ){
 			GtU <- as.matrix(vx[ss_idx,-c(1:10)])
 
-			# The C matrix loaded from the vcov bin file has covariance set to 0 for variants that are greater
-			# than the 2 * (--window X) bp apart. The GtU matrix does not, and has values for every single variant,
-			# regardless of whether the covariance is actually known between them. Subtracting off this tcrossprod(GtU) can then
-			# result in incorrect covariance values where they should otherwise still be 0.
+			# The C matrix loaded from the vcov bin file has covariance set to NA for variants that are greater
+			# than the 2 * (--window X) bp apart. These values will be set to 0 if ASSUME_MISSING_COV_ZERO is set to TRUE.
+			# The GtU matrix does not, and has values for every single variant, regardless of whether the covariance is
+			# actually known between them. Subtracting off this tcrossprod(GtU) can then result in incorrect covariance
+			# values where they should otherwise still be missing (or 0).
 			H <- tcrossprod(GtU)
 			if (!all(dim(C) == dim(H))) {
 				stop("Dimensions of matrices C and H do not match")
 			}
-			H[C == 0] <- 0
+			if (ASSUME_MISSING_COV_ZERO) {
+				warning("Assuming long-range missing covariances are 0; if this is not valid, set ASSUME_MISSING_COV_ZERO to FALSE")
+				H[is.na(C)] <- 0
+				C[is.na(C)] <- 0
+			} else {
+				H[is.na(C)] <- NA
+			}
 
 			V <- flipMatrix(
 				C - H,
@@ -217,7 +231,12 @@ sumStats$methods(
 			if (!all(dim(C) == dim(H))) {
 				stop("Dimensions of matrices C and H do not match")
 			}
-			H[C == 0] <- 0
+			if (ASSUME_MISSING_COV_ZERO) {
+				H[is.na(C)] <- 0
+				C[is.na(C)] <- 0
+			} else {
+				H[is.na(C)] <- NA
+			}
 
 			V <- flipMatrix(
 				C - H,

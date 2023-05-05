@@ -351,6 +351,11 @@ NumericMatrix buildMatrixC(const NumericVector& s, const NumericVector& n, const
         int64_t sz_x = x.size();
         int64_t s0 = s[0];
         NumericMatrix out(sz, sz);
+
+        for (int64_t i = 0; i < sz*sz; i++) {
+                out[i] = NA_REAL;
+        }
+
         for(int64_t i = 0; i < sz; i++ ){
                 if( m[i] > 0 ){
 			int64_t offset_ij = s[i] - s0;
