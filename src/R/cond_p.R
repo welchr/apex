@@ -1,23 +1,33 @@
-loop_gene_tryCatch <- function (x) {
+loop_gene_tryCatch <- function (x, rlist=NULL, meta=NULL) {
+  if (missing(rlist) || is.null(rlist)) {
+    rlist = res_list
+  }
+  if (missing(meta) || is.null(meta)) {
+    meta = ssm
+  }
   print(x)
   return(
     tryCatch(
-      loop_gene(gene=names(res_list)[x],c_list=res_list[[x]],heter=T),
+      loop_gene(gene=names(rlist)[x],c_list=rlist[[x]],heter=T,meta=meta),
       error=function(e) {
-        data.frame("gene"=names(res_list)[x])
+        warning(e)
+        data.frame("gene"=names(rlist)[x])
       }
     )
   )
 }
 
-loop_gene=function(gene,c_list,heter=T){
-  meta_object = ssm$getSuffStats(gene)
+loop_gene=function(gene,c_list,heter=T,meta=NULL){
+  if (missing(meta) || is.null(meta)) {
+    meta = ssm
+  }
+  meta_object = meta$getSuffStats(gene)
   meta_V <- meta_object$XtX
   meta_U <- meta_object$Xty
   meta_S <- meta_object$yty
   meta_n <- meta_object$n_samples
   meta_m <- meta_object$n_covariates
-  gene_sf_het <- getStudySuffStats(gene, ssm)
+  gene_sf_het <- getStudySuffStats(gene, meta)
 
   all_out=data.frame()
   for (i in 1:length(c_list)){
