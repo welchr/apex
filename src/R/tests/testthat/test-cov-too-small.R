@@ -1,3 +1,11 @@
+#' Test case for the situation where the --window provided to `apex store` was too small to capture
+#' all possible covariance values between variants. The dataset used here is purely synthetic; it has
+#' two signals, one at each end of the "gene", and there is no covariance information available between them.
+#' In this situation, we can either assume the missing covariance is 0, and carry on and fit the model, or
+#' truly treat the covariance as missing and set the result to a sentinel value (p-value of 1.) If your --window
+#' is quite large, it may be acceptable to assume long distance covariance is 0.
+#'
+#' This test case function tests the situation where covariance is assumed to be 0 if it is missing.
 test_that("running with missing long range covariance set to 0", {
   # Temporarily required while Apex2R is not an actual R package
   withr::local_dir("../../")
@@ -40,6 +48,8 @@ test_that("running with missing long range covariance set to 0", {
   )
 })
 
+#' Similar to the test case above, except that missing covariance is set to NA, and tests with missing covariance
+#' then are not performed and set to have a sentinel p-value of 1.
 test_that("running with missing long range covariance set to NA", {
   withr::local_dir("../../")
   source("Apex2R.r")
