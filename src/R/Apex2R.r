@@ -3,8 +3,10 @@ require(data.table)
 require(Matrix)
 require(Rcpp)
 
-options(warn=1)
-ASSUME_MISSING_COV_ZERO = TRUE
+options(
+	warn = 1,
+	assumeMissingCovZero=TRUE
+)
 
 Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 Rcpp::sourceCpp('xzReader.cpp') 
@@ -205,7 +207,7 @@ sumStats$methods(
 			GtU <- as.matrix(vx[ss_idx,-c(1:10)])
 
 			# The C matrix loaded from the vcov bin file has covariance set to NA for variants that are greater
-			# than the 2 * (--window X) bp apart. These values will be set to 0 if ASSUME_MISSING_COV_ZERO is set to TRUE.
+			# than the 2 * (--window X) bp apart. These values will be set to 0 if option(assumeMissingCovZero=TRUE).
 			# The GtU matrix does not, and has values for every single variant, regardless of whether the covariance is
 			# actually known between them. Subtracting off this tcrossprod(GtU) can then result in incorrect covariance
 			# values where they should otherwise still be missing (or 0).
@@ -213,8 +215,8 @@ sumStats$methods(
 			if (!all(dim(C) == dim(H))) {
 				stop("Dimensions of matrices C and H do not match")
 			}
-			if (ASSUME_MISSING_COV_ZERO) {
-				warning("Assuming long-range missing covariances are 0; if this is not valid, set ASSUME_MISSING_COV_ZERO to FALSE")
+			if (getOption("assumeMissingCovZero")) {
+				warning("Assuming long-range missing covariances are 0; if this is not valid, set option(assumeMissingCovZero=FALSE")
 				H[is.na(C)] <- 0
 				C[is.na(C)] <- 0
 			} else {
@@ -231,7 +233,7 @@ sumStats$methods(
 			if (!all(dim(C) == dim(H))) {
 				stop("Dimensions of matrices C and H do not match")
 			}
-			if (ASSUME_MISSING_COV_ZERO) {
+			if (getOption("assumeMissingCovZero")) {
 				H[is.na(C)] <- 0
 				C[is.na(C)] <- 0
 			} else {
