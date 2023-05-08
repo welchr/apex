@@ -1,0 +1,5 @@
+YAR1; Step 0, part 1; Added 1_12_A_G; Model size 1
+YAR1; Step 1, part 1; Added 1_2_A_G; Model size 2
+YAR1; Step 2; Exiting, no p-values met add/drop thresholds; Model size 2
+ABCD1; Step 0, part 1; Added 1_2_A_G; Model size 1
+ABCD1; Step 1; Exiting, no p-values met add/drop thresholds; Model size 1
