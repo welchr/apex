@@ -18,10 +18,13 @@ add_executable(
     cis_gene_table_reader.cpp
     cis_long_table_reader.h
     cis_long_table_reader.cpp
+    factor_reader.h
+    factor_reader.cpp
     test_meta.cpp
     test_rmath.cpp
     test_cis.cpp
     test_store.cpp
+    test_factor.cpp
 )
 
 target_include_directories(tests PUBLIC ${APEX_INCLUDES})
