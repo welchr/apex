@@ -49,15 +49,7 @@ class table
 			
 			BGZF* out_file = bgzf_open(out_file_path.c_str(), "w");
 			std::stringstream out_line;
-			
-			
-			int dj = 0;
-			if( data_matrix.cols() > rows.keep.size() ){
-				// has intercept column.
-				dj = 1;
-			}
-			
-			
+
 			for(int j = 0; j < rows.keep.size(); j++){
 				std::stringstream out_line;
 				
@@ -76,7 +68,7 @@ class table
 				out_line << rows.keep[j];
 				
 				for(int i = 0; i < cols.keep.size(); i++){
-					out_line << "\t" << data_matrix(i, j + dj);
+					out_line << "\t" << data_matrix(i, j);
 				}
 				out_line << "\n";
 				

@@ -1604,7 +1604,7 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 		// if( !no_scale_x ){
 			scale_and_center(c_data.data_matrix);
 		// }
-		appendInterceptColumn(c_data.data_matrix);
+		// appendInterceptColumn(c_data.data_matrix);
 	}
 		
 	std::vector<int> test_idx;
