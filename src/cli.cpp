@@ -1392,6 +1392,7 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 	args::Group scale_args(p, "Scale and transform options");
 		args::Flag rknorm_y(scale_args, "", "Apply rank normal transform to trait values.", {"rankNormal"});
 		args::Flag rknorm_r(scale_args, "", "Apply rank normal transform to residuals (can be used with rankNormal).", {"rankNormal-resid"});
+    args::Flag no_scale_x(scale_args, "", "Do not scale and center covariates (otherwise done by default).", {"no-scale-cov"}, args::Options::Hidden);
 
 	args::Group input_args(p, "Input files");
 		args::ValueFlag<std::string> bcf_arg(input_args, "", "Genotype file path (vcf, vcf.gz, or bcf format).", {'v', "vcf", "bcf"});
@@ -1601,9 +1602,9 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 		c_data.readFile(c_path.c_str());
 		std::cerr << "Processed data for " << c_data.data_matrix.cols() << " covariates across " << c_data.data_matrix.rows() << " samples.\n";
 			
-		// if( !no_scale_x ){
+		if( !no_scale_x ){
 			scale_and_center(c_data.data_matrix);
-		// }
+		}
 		// appendInterceptColumn(c_data.data_matrix);
 	}
 		
