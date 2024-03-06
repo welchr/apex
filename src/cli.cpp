@@ -1492,24 +1492,12 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 	
 	std::vector<int> variants_per_chrom;
 	
-	genotype_data g_data;
 	table c_data;
 	bed_data e_data;
 	
-	std::vector<std::string> bcf_chroms;
 	std::vector<std::string> keep_chroms;
 	std::vector<std::string> bed_chroms = get_chroms(e_path);
-	
-	if ( g_path != "" ){
-		bcf_chroms = get_chroms(g_path, variants_per_chrom);
-	
-		for(int i = 0; i < bcf_chroms.size(); i++ ){
-			if( find(keep_chroms.begin(), keep_chroms.end(), bcf_chroms[i]) != keep_chroms.end() ){
-				n_var += variants_per_chrom[i];
-			}
-		}
-		
-	}
+
 	keep_chroms = bed_chroms;
 	
 	// Show chromosomes present across files.
@@ -1534,19 +1522,6 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 		bcf_sr_set_regions(sr, region_string.c_str(), 0);
 	}
 	
-	bcf_hdr_t *hdr;
-	
-	if( g_path != "" ){
-		
-		bcf_sr_add_reader(sr, g_path.c_str());
-		hdr = bcf_sr_get_header(sr, 0);
-		
-		// read header from bcf file
-		g_data.read_bcf_header(hdr);
-		std::cerr << "Found " << g_data.ids.file.size() << " samples in bcf file ... \n";	
-			
-	}
-	
 	// read header from covariate file
 	if( c_path == "" ){
 		std::cerr << "\nWARNING: No covariate file specified. That's usually a bad idea.\n";
@@ -1562,26 +1537,11 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 	e_data.readBedHeader(e_path.c_str());
 	std::cerr << "Found " << e_data.ids.file.size() << " samples in expression bed file ... \n";
 	
-	std::vector<std::string> intersected_samples;
-
-  // If genotypes were specified, they need to be the first set of samples to be intersected so that the intersected
-  // samples are in same order as genotype file (?)
-  if (g_path != "") {
-    intersected_samples = intersect_stable(g_data.ids.file, e_data.ids.file);
-  } else {
-    // There were no genotypes, so we can just start intersected samples off as the expression data samples
-    intersected_samples = e_data.ids.file;
-  }
+	std::vector<std::string> intersected_samples = e_data.ids.file;
 
   if (c_path != "") {
     intersected_samples = intersect_stable(intersected_samples, c_data.cols.file);
   }
-
-	if( g_path != "" ){
-		// set to the intersection across all three files
-		g_data.ids.setKeepIDs(intersected_samples);
-		g_data.n_samples = intersected_samples.size();
-	}
 
   std::cerr << "Found " << intersected_samples.size() << " samples in common across all files.\n\n";
 	
@@ -1618,11 +1578,8 @@ int factor(const std::string &progname, std::vector<std::string>::const_iterator
 	//}
 	
 	std::cerr << "Processed expression for " << e_data.data_matrix.cols() << " genes across " << e_data.data_matrix.rows() << " samples.\n";
-	
-	// let's get the genotypes. 
-	
-	
-	save_fa_covariates(n_ePCs, g_data, c_data, e_data, rknorm_y, rknorm_r);
+
+	save_fa_covariates(n_ePCs, c_data, e_data, rknorm_y, rknorm_r);
 	
     return 0;
 };

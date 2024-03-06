@@ -1552,7 +1552,7 @@ void run_cis_QTL_analysis_eFE(const int& n_fac, bcf_srs_t*& sr, bcf_hdr_t*& hdr,
 
 
 
-void save_fa_covariates(const int& n_fac, genotype_data& g_data, table& c_data, bed_data& e_data, const bool& rknorm_y, const bool& rknorm_r)
+void save_fa_covariates(const int& n_fac, table& c_data, bed_data& e_data, const bool& rknorm_y, const bool& rknorm_r)
 {
 	
 	Eigen::MatrixXd Q;
@@ -1568,7 +1568,6 @@ void save_fa_covariates(const int& n_fac, genotype_data& g_data, table& c_data, 
 	
 	double n_traits = Y.cols();
 	double n_samples = Y.rows();
-	double n_snps = g_data.n_variants;
 	double n_covar = C.cols();
 
 	// std::cerr << "Started cis-QTL analysis ...\n";
